@@ -75,6 +75,11 @@
             </com.google.android.material.card.MaterialCardView>
             -->
 
+            <!-- Backend selector. Kept near routing controls because it
+                 changes which engine receives the EQ state when the
+                 service starts. -->
+            <include layout="@layout/card_dsp_backend_selector" />
+
             <!-- Master toggle for device-binding auto-switching. Sits
                  above the device sections the same way Channel Input's
                  "Session detection" card sits above its lists. -->
