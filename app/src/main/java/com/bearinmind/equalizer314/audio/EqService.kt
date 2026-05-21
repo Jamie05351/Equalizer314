@@ -13,6 +13,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bearinmind.equalizer314.MainActivity
 import com.bearinmind.equalizer314.R
+import com.bearinmind.equalizer314.backend.DspBackend
+import com.bearinmind.equalizer314.backend.DynamicsProcessingBackend
 import com.bearinmind.equalizer314.dsp.ParametricEqualizer
 import com.bearinmind.equalizer314.state.EqPreferencesManager
 
@@ -76,6 +78,7 @@ class EqService : Service() {
     }
 
     val dynamicsManager = DynamicsProcessingManager()
+    private val dspBackend: DspBackend = DynamicsProcessingBackend(dynamicsManager)
     private val binder = EqBinder()
 
     /** Public so [com.bearinmind.equalizer314.AudioOutputActivity] can
@@ -149,7 +152,7 @@ class EqService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_STOP -> {
-                dynamicsManager.stop()
+                dspBackend.stop()
                 sessionEffects?.releaseAll()
                 sendBroadcast(Intent(ACTION_EQ_STOPPED).setPackage(packageName))
                 @Suppress("DEPRECATION")
@@ -209,7 +212,7 @@ class EqService : Service() {
                 // effects, never a parallel session-0 instance.
                 val prefs = EqPreferencesManager(this)
                 if (prefs.getAudioRoutingMode() == 1) {
-                    dynamicsManager.stop()
+                    dspBackend.stop()
                     // Mark this stop as silent — the user didn't tap
                     // the power button, they flipped routing mode. We
                     // still want MainActivity to drop its bind /
@@ -243,24 +246,24 @@ class EqService : Service() {
 
     fun startEq(eq: ParametricEqualizer): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return false
-        dynamicsManager.start(eq)
-        return dynamicsManager.isActive
+        dspBackend.start(eq)
+        return dspBackend.isActive
     }
 
     fun updateEq(eq: ParametricEqualizer) {
-        dynamicsManager.updateFromEqualizer(eq)
+        dspBackend.updateFromEqualizer(eq)
     }
 
     fun updateEqPerChannel(leftEq: ParametricEqualizer, rightEq: ParametricEqualizer) {
-        dynamicsManager.updateFromEqualizers(leftEq, rightEq)
+        dspBackend.updateFromEqualizers(leftEq, rightEq)
     }
 
     fun setEqEnabled(enabled: Boolean) {
-        dynamicsManager.setEnabled(enabled)
+        dspBackend.setEnabled(enabled)
     }
 
     fun updateMbc(bands: List<DynamicsProcessingManager.MbcBandParams>, crossovers: FloatArray) {
-        dynamicsManager.applyMbcBands(bands, crossovers)
+        dspBackend.applyMbcBands(bands, crossovers)
     }
 
     private fun updateNotification() {
@@ -275,7 +278,7 @@ class EqService : Service() {
         routeCoordinator = null
         sessionEffects?.releaseAll()
         sessionEffects = null
-        dynamicsManager.stop()
+        dspBackend.stop()
         Log.d(TAG, "EqService destroyed")
         super.onDestroy()
     }
