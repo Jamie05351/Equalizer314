@@ -4,7 +4,9 @@ import android.util.Log
 import com.bearinmind.equalizer314.audio.DynamicsProcessingManager
 import com.bearinmind.equalizer314.dsp.ParametricEqualizer
 
-class JamesDspBackend : DspBackend {
+class JamesDspBackend(
+    private val powerController: JamesDspPowerController
+) : DspBackend {
 
     companion object {
         private const val TAG = "JamesDspBackend"
@@ -22,6 +24,7 @@ class JamesDspBackend : DspBackend {
         lastRightEq = eq
         active = true
         Log.d(TAG, "start")
+        powerController.setPowered(true)
         applyFullState()
     }
 
@@ -64,6 +67,7 @@ class JamesDspBackend : DspBackend {
 
     override fun setEnabled(enabled: Boolean) {
         active = enabled
+        powerController.setPowered(enabled)
         Log.d(TAG, "setEnabled=$enabled")
     }
 
@@ -71,6 +75,7 @@ class JamesDspBackend : DspBackend {
         active = false
         lastLeftEq = null
         lastRightEq = null
+        powerController.setPowered(false)
         Log.d(TAG, "stop")
     }
 
