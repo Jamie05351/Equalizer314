@@ -14,7 +14,9 @@ import androidx.core.app.NotificationCompat
 import com.bearinmind.equalizer314.MainActivity
 import com.bearinmind.equalizer314.R
 import com.bearinmind.equalizer314.backend.DspBackend
+import com.bearinmind.equalizer314.backend.DspBackendPreferences
 import com.bearinmind.equalizer314.backend.DynamicsProcessingBackend
+import com.bearinmind.equalizer314.backend.JamesDspBackend
 import com.bearinmind.equalizer314.dsp.ParametricEqualizer
 import com.bearinmind.equalizer314.state.EqPreferencesManager
 
@@ -78,7 +80,7 @@ class EqService : Service() {
     }
 
     val dynamicsManager = DynamicsProcessingManager()
-    private val dspBackend: DspBackend = DynamicsProcessingBackend(dynamicsManager)
+    private lateinit var dspBackend: DspBackend
     private val binder = EqBinder()
 
     /** Public so [com.bearinmind.equalizer314.AudioOutputActivity] can
@@ -108,6 +110,7 @@ class EqService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        dspBackend = createDspBackend()
         createNotificationChannel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(
@@ -264,6 +267,14 @@ class EqService : Service() {
 
     fun updateMbc(bands: List<DynamicsProcessingManager.MbcBandParams>, crossovers: FloatArray) {
         dspBackend.applyMbcBands(bands, crossovers)
+    }
+
+    private fun createDspBackend(): DspBackend {
+        val backendMode = DspBackendPreferences(this).getBackendMode()
+        return when (backendMode) {
+            DspBackendPreferences.BACKEND_ROOTLESS_JAMESDSP -> JamesDspBackend()
+            else -> DynamicsProcessingBackend(dynamicsManager)
+        }
     }
 
     private fun updateNotification() {
