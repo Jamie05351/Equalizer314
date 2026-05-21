@@ -5,7 +5,8 @@ import com.bearinmind.equalizer314.audio.DynamicsProcessingManager
 import com.bearinmind.equalizer314.dsp.ParametricEqualizer
 
 class JamesDspBackend(
-    private val powerController: JamesDspPowerController
+    private val powerController: JamesDspPowerController,
+    private val peqController: JamesDspPeqController
 ) : DspBackend {
 
     companion object {
@@ -68,6 +69,9 @@ class JamesDspBackend(
     override fun setEnabled(enabled: Boolean) {
         active = enabled
         powerController.setPowered(enabled)
+        if (enabled) {
+            applyFullState()
+        }
         Log.d(TAG, "setEnabled=$enabled")
     }
 
@@ -80,17 +84,16 @@ class JamesDspBackend(
     }
 
     private fun applyEqState() {
-        // TODO: Render Equalizer314 ParametricEqualizer to JamesDSP-compatible params.
-        // TODO: Write via Shizuku bridge.
-        // TODO: Trigger Rootless JamesDSP reload/apply.
+        if (!active) return
+        peqController.sendPeq(lastLeftEq)
     }
 
     private fun applyLimiterState() {
-        // TODO: Render limiter settings to JamesDSP-compatible params.
+        // TODO: Render limiter settings to Rootless JamesDSP-compatible params.
     }
 
     private fun applyMbcState() {
-        // TODO: Render multiband compressor settings to JamesDSP-compatible params.
+        // TODO: Render multiband compressor settings to Rootless JamesDSP-compatible params.
     }
 
     private fun applyFullState() {
