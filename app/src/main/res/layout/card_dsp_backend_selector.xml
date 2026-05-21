@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.bearinmind.equalizer314.ui.DspBackendSelectorCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dspBackendCard"
     android:layout_width="match_parent"
@@ -61,4 +61,4 @@
                 android:textIsSelectable="false" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.bearinmind.equalizer314.ui.DspBackendSelectorCardView>
