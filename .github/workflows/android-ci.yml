@@ -9,6 +9,7 @@ on:
       - main
       - dsp-backend-selector
       - jamesdsp-backend-adapter
+      - upload-debug-apk-artifact
 
 jobs:
   build:
@@ -33,3 +34,10 @@ jobs:
 
       - name: Assemble debug
         run: ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Equalizer314-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
