@@ -17,6 +17,7 @@ import com.bearinmind.equalizer314.backend.DspBackend
 import com.bearinmind.equalizer314.backend.DspBackendPreferences
 import com.bearinmind.equalizer314.backend.DynamicsProcessingBackend
 import com.bearinmind.equalizer314.backend.JamesDspBackend
+import com.bearinmind.equalizer314.backend.JamesDspPeqController
 import com.bearinmind.equalizer314.backend.JamesDspPowerController
 import com.bearinmind.equalizer314.dsp.ParametricEqualizer
 import com.bearinmind.equalizer314.state.EqPreferencesManager
@@ -274,7 +275,8 @@ class EqService : Service() {
         val backendMode = DspBackendPreferences(this).getBackendMode()
         return when (backendMode) {
             DspBackendPreferences.BACKEND_ROOTLESS_JAMESDSP -> JamesDspBackend(
-                JamesDspPowerController(applicationContext)
+                JamesDspPowerController(applicationContext),
+                JamesDspPeqController(applicationContext)
             )
             else -> DynamicsProcessingBackend(dynamicsManager)
         }
